@@ -1,135 +1,123 @@
-// --- CONFIGURACIÓN SUPABASE ---
-const supabaseClient = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
+// admin.js BLINDADO
+document.addEventListener('DOMContentLoaded', () => {
 
-// --- LOGIN ---
-function checkLogin() {
-    const pass = document.getElementById('adminPass').value;
-    if(pass === "admin123") { 
-        document.getElementById('login-overlay').classList.add('d-none');
-        document.getElementById('admin-panel').classList.remove('d-none');
-        loadAdminProducts(); 
-    } else {
-        document.getElementById('errorMsg').classList.remove('d-none');
+    // 1. Verificamos que Supabase esté listo
+    if (typeof supabase === 'undefined' || typeof CONFIG === 'undefined') {
+        alert("Error crítico: No se cargaron las librerías. Revisa tu internet o el archivo config.js");
+        return;
     }
-}
 
-// --- SUBIDA MULTI-IMAGEN ---
-document.getElementById('uploadForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const btn = document.getElementById('submitBtn');
-    const originalText = btn.innerText;
-    btn.disabled = true;
-    btn.innerText = "SUBIENDO IMÁGENES...";
+    const supabaseClient = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
 
-    try {
-        const title = document.getElementById('pTitle').value;
-        const category = document.getElementById('pCategory').value;
-        const price = parseFloat(document.getElementById('pPrice').value);
-        const desc = document.getElementById('pDesc').value;
-        
-        // Obtenemos TODOS los archivos seleccionados
-        const fileInput = document.getElementById('pImage');
-        const files = fileInput.files;
+    // 2. Configurar Login
+    const loginBtn = document.querySelector('#login-overlay button');
+    if (loginBtn) {
+        loginBtn.onclick = () => {
+            const pass = document.getElementById('adminPass').value;
+            if (pass === "admin123") {
+                document.getElementById('login-overlay').classList.add('d-none');
+                document.getElementById('admin-panel').classList.remove('d-none');
+                loadAdminProducts(supabaseClient);
+            } else {
+                document.getElementById('errorMsg').classList.remove('d-none');
+            }
+        };
+    }
 
-        if (files.length === 0) throw new Error("Selecciona al menos una imagen");
+    // 3. Configurar Formulario (CON PREVENCIÓN DE RECARGA)
+    const uploadForm = document.getElementById('uploadForm');
+    if (uploadForm) {
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault(); // <--- ESTO EVITA QUE LA PÁGINA SE RECARGUE
 
-        // Array para guardar las URLs de todas las fotos
-        let uploadedUrls = [];
+            const btn = document.getElementById('submitBtn');
+            const originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = "⏳ SUBIENDO...";
 
-        // Bucle: Subimos una por una
-        for (let i = 0; i < files.length; i++) {
-            const file = files[i];
-            const fileName = `${Date.now()}_${i}_${file.name.replace(/\s/g, '')}`;
-            
-            // Subir al Bucket 'images'
-            const { error: uploadError } = await supabaseClient
-                .storage
-                .from('images')
-                .upload(fileName, file);
+            try {
+                const title = document.getElementById('pTitle').value;
+                const category = document.getElementById('pCategory').value;
+                const price = parseFloat(document.getElementById('pPrice').value);
+                const desc = document.getElementById('pDesc').value;
+                const files = document.getElementById('pImage').files;
 
-            if (uploadError) throw uploadError;
+                if (files.length === 0) throw new Error("¡Falta la foto!");
 
-            // Obtener URL
-            const { data: publicUrlData } = supabaseClient
-                .storage
-                .from('images')
-                .getPublicUrl(fileName);
-            
-            uploadedUrls.push(publicUrlData.publicUrl);
-        }
+                let uploadedUrls = [];
 
-        // Lógica: 
-        // La primera foto (índice 0) va al campo 'image' (Portada).
-        // El resto (índice 1 en adelante) van al campo 'gallery'.
-        const mainImage = uploadedUrls[0];
-        const galleryImages = uploadedUrls.slice(1); // Del 1 al final
+                // Subimos las fotos
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    // Nombre limpio para evitar errores de caracteres raros
+                    const cleanName = file.name.replace(/[^a-zA-Z0-9.]/g, '_');
+                    const fileName = `${Date.now()}_${i}_${cleanName}`;
 
-        // Guardar en Base de Datos
-        const { error: dbError } = await supabaseClient
-            .from('products')
-            .insert([
-                { 
-                    title, 
-                    category, 
-                    price, 
-                    desc, 
-                    image: mainImage, 
-                    gallery: galleryImages // Aquí guardamos el array de extras
+                    const { error: uploadError } = await supabaseClient.storage
+                        .from('images')
+                        .upload(fileName, file);
+
+                    if (uploadError) throw uploadError;
+
+                    const { data } = supabaseClient.storage
+                        .from('images')
+                        .getPublicUrl(fileName);
+                    
+                    uploadedUrls.push(data.publicUrl);
                 }
-            ]);
 
-        if (dbError) throw dbError;
+                // Guardamos en base de datos
+                const { error: dbError } = await supabaseClient
+                    .from('products')
+                    .insert([{
+                        title, category, price, desc,
+                        image: uploadedUrls[0], // Primera foto es portada
+                        gallery: uploadedUrls.slice(1) // El resto a la galería
+                    }]);
 
-        alert("¡Producto y galería guardados con éxito!");
-        document.getElementById('uploadForm').reset();
-        loadAdminProducts(); 
+                if (dbError) throw dbError;
 
-    } catch (error) {
-        console.error(error);
-        alert("Error: " + error.message);
-    } finally {
-        btn.disabled = false;
-        btn.innerText = originalText;
+                alert("✅ ¡Producto guardado!");
+                uploadForm.reset();
+                loadAdminProducts(supabaseClient);
+
+            } catch (error) {
+                console.error(error);
+                alert("❌ Error: " + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = originalText;
+            }
+        });
     }
 });
 
-// --- LISTAR PRODUCTOS ---
-async function loadAdminProducts() {
+// Función para cargar productos
+async function loadAdminProducts(client) {
     const list = document.getElementById('productsList');
-    list.innerHTML = '<div class="text-center py-3"><i class="fas fa-spinner fa-spin"></i></div>';
-
-    const { data, error } = await supabaseClient.from('products').select('*').order('id', { ascending: false });
-
-    if (error) { list.innerHTML = `<p class="text-danger">${error.message}</p>`; return; }
+    list.innerHTML = 'Cargando...';
     
+    const { data, error } = await client.from('products').select('*').order('id', { ascending: false });
+
+    if (error) { list.innerHTML = 'Error al cargar lista.'; return; }
     list.innerHTML = '';
-    if (data.length === 0) { list.innerHTML = '<p class="text-muted text-center">Sin productos.</p>'; return; }
 
     data.forEach(prod => {
-        // Calculamos cuántas fotos extra tiene para mostrar el dato
-        const galleryCount = prod.gallery ? prod.gallery.length : 0;
-        
-        list.innerHTML += `
-            <div class="product-mini-item">
-                <div class="d-flex align-items-center">
-                    <img src="${prod.image}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;" class="me-3">
-                    <div>
-                        <h6 class="m-0 fw-bold small">${prod.title}</h6>
-                        <small class="text-muted">$${prod.price} | +${galleryCount} fotos extra</small>
-                    </div>
-                </div>
-                <button class="btn btn-sm btn-outline-danger border-0" onclick="deleteProduct(${prod.id})">
-                    <i class="fas fa-trash"></i>
-                </button>
+        const item = document.createElement('div');
+        item.className = 'product-mini-item';
+        item.innerHTML = `
+            <div class="d-flex align-items-center">
+                <img src="${prod.image}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;" class="me-2">
+                <small class="fw-bold">${prod.title}</small>
             </div>
+            <button class="btn btn-sm text-danger delete-btn"><i class="fas fa-trash"></i></button>
         `;
+        item.querySelector('.delete-btn').onclick = async () => {
+            if(confirm('¿Borrar?')) {
+                await client.from('products').delete().eq('id', prod.id);
+                loadAdminProducts(client);
+            }
+        };
+        list.appendChild(item);
     });
-}
-
-async function deleteProduct(id) {
-    if(!confirm("¿Borrar producto permanentemente?")) return;
-    const { error } = await supabaseClient.from('products').delete().eq('id', id);
-    if (error) alert(error.message);
-    else loadAdminProducts();
 }
