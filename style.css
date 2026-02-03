@@ -1,0 +1,111 @@
+:root {
+    --gold: #c6a868;
+    --gold-hover: #b09151;
+    --dark: #1a1a1a;
+    --cream: #f9f7f2;
+    --white: #ffffff;
+    --font-primary: 'Montserrat', sans-serif;
+    --font-display: 'Playfair Display', serif;
+}
+
+body {
+    background-color: var(--cream);
+    font-family: var(--font-primary);
+    color: var(--dark);
+    min-height: 100vh;
+}
+
+/* --- TIPOGRAFÍA Y UTILIDADES --- */
+.font-playfair { font-family: var(--font-display); }
+.text-gold { color: var(--gold) !important; }
+.bg-gold { background-color: var(--gold) !important; }
+.bg-light-cream { background-color: #fffdf9; }
+
+/* --- BOTÓN CARRITO (Nuevo borde diferenciador) --- */
+.btn-cart-custom {
+    border: 2px solid var(--gold);
+    border-radius: 50px;
+    padding: 8px 25px;
+    font-weight: 600;
+    color: var(--dark);
+    background-color: transparent;
+    transition: all 0.3s ease;
+}
+
+.btn-cart-custom:hover {
+    background-color: var(--gold);
+    color: var(--white);
+    border-color: var(--gold);
+}
+
+#btn-up {
+    position: fixed;
+    bottom: 20px; 
+    left: 20px; 
+    width: 50px;
+    height: 50px;
+    background-color: var(--dark);
+    color: var(--gold);
+    border: 2px solid var(--gold);
+    border-radius: 50%;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    z-index: 9999;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#btn-up:hover {
+    transform: translateY(-5px);
+    background-color: var(--gold);
+    color: var(--white);
+}
+
+/* --- NAVEGACIÓN --- */
+.nav-link {
+    color: var(--dark);
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    transition: color 0.3s;
+}
+.nav-link:hover, .nav-link.active {
+    color: var(--gold) !important;
+}
+
+/* --- TARJETAS DE PRODUCTO --- */
+.product-card {
+    position: relative; overflow: hidden; cursor: pointer; height: 400px; background-color: #000;
+}
+.product-card img {
+    width: 100%; height: 100%; object-fit: cover; opacity: 0.85; transition: 0.5s ease;
+}
+.card-overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent 50%);
+    display: flex; flex-direction: column; justify-content: flex-end; padding: 1.5rem;
+}
+.product-card:hover img { transform: scale(1.1); opacity: 0.6; }
+
+/* --- GALERÍA MINIATURAS --- */
+.gallery-thumb { width: 60px; height: 60px; object-fit: cover; cursor: pointer; border: 1px solid #ddd; opacity: 0.6; flex-shrink: 0; }
+.gallery-thumb.active, .gallery-thumb:hover { border: 2px solid var(--gold); opacity: 1; }
+
+/* --- MODAL PERSONALIZADO --- */
+.custom-alert-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6); z-index: 10001;
+    display: flex; align-items: center; justify-content: center;
+}
+.custom-alert-box {
+    background: #222; padding: 40px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); min-width: 300px;
+}
+.btn-gold-solid { background: var(--gold); color: white; border: none; font-weight: 600; transition: 0.3s; }
+.btn-gold-solid:hover { background: var(--gold-hover); }
+
+/* --- RESPONSIVE --- */
+@media (max-width: 991px) {
+    .product-card { height: 350px; }
+    .btn-cart-custom { width: 100%; margin-top: 10px; text-align: center; }
+}

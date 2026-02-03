@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DECOYDETALLES</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:ital,wght@0,700;1,400&display=swap"
+        rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <button id="btn-up" onclick="scrollToTop()" title="Subir">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm py-3">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="#" onclick="showView('home')">
+                <i class="fas fa-gem text-gold me-2"></i>
+                <h1 class="h4 m-0 font-playfair fw-bold">DECOY<span class="text-gold">DETALLES</span></h1>
+            </a>
+
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center gap-3">
+                    <li class="nav-item">
+                        <a class="nav-link fw-semibold" href="#" onclick="showView('home', this)">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link fw-semibold" href="#" onclick="showView('catalog', this)">Catálogo</a>
+                    </li>
+                    <li class="nav-item ms-lg-2">
+                        <button class="btn btn-cart-custom position-relative" type="button" data-bs-toggle="offcanvas"
+                            data-bs-target="#cartOffcanvas" aria-controls="cartOffcanvas">
+                            <i class="fas fa-shopping-bag me-2"></i> Carrito
+                            <span
+                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                id="cartCountBadge">0</span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div id="home-view" class="view-section fade-in">
+        <header class="hero-section text-center py-5">
+            <div class="container py-4">
+                <h2 class="display-4 font-playfair mb-3">Novedades Exclusivas</h2>
+                <p class="text-muted lead mb-5 fst-italic">La elegancia comienza en tu mesa.</p>
+                <div class="row g-4 justify-content-center" id="randomFeatured"></div>
+                <div class="mt-5">
+                    <button onclick="showView('catalog')" class="btn btn-dark btn-lg px-5 rounded-0 font-playfair">
+                        EXPLORAR CATÁLOGO
+                    </button>
+                </div>
+            </div>
+        </header>
+    </div>
+
+    <div id="catalog-view" class="view-section d-none fade-in">
+        <div class="container py-5">
+            <div class="text-center mb-5">
+                <h2 class="display-5 font-playfair fw-bold mb-3">Catálogo Completo</h2>
+                <div class="row justify-content-center mt-4">
+                    <div class="col-lg-6 col-md-8">
+                        <div class="input-group shadow-sm mb-4">
+                            <span class="input-group-text bg-white border-end-0"><i
+                                    class="fas fa-search text-gold"></i></span>
+                            <input type="text" id="searchInput" class="form-control border-start-0 py-3"
+                                placeholder="Buscar...">
+                        </div>
+                        <div class="d-flex justify-content-center gap-2 flex-wrap" id="filterContainer">
+                            <button class="btn btn-dark rounded-pill px-4 active-filter"
+                                onclick="filterCatalog('all', this)">Todo</button>
+                            <button class="btn btn-outline-dark rounded-pill px-4"
+                                onclick="filterCatalog('servilletas', this)">Servilletas</button>
+                            <button class="btn btn-outline-dark rounded-pill px-4"
+                                onclick="filterCatalog('manteleria', this)">Mantelería</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row g-4" id="catalogGrid"></div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="productModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 rounded-0 shadow-lg overflow-hidden">
+                <div class="row g-0">
+                    <div
+                        class="col-lg-6 bg-light p-3 text-center d-flex flex-column align-items-center justify-content-center">
+                        <div class="ratio ratio-1x1 w-100 mb-2 bg-white shadow-sm">
+                            <img id="modalImg" src="" class="img-fluid" style="object-fit: cover;">
+                        </div>
+                        <div id="modalGallery" class="d-flex gap-2 overflow-auto w-100 px-1 py-1"
+                            style="white-space: nowrap;"></div>
+                    </div>
+                    <div class="col-lg-6 p-4 d-flex flex-column bg-white">
+                        <button type="button" class="btn-close ms-auto mb-2" data-bs-dismiss="modal"></button>
+                        <h3 id="modalTitle" class="font-playfair fw-bold mb-1"></h3>
+                        <div class="mb-3"><span id="modalCategory"
+                                class="badge bg-gold text-white rounded-0 px-3 py-2"></span></div>
+                        <div class="flex-grow-1 overflow-auto mb-3" style="max-height: 150px;">
+                            <p id="modalDesc" class="text-muted small"></p>
+                        </div>
+                        <h2 id="modalPrice" class="text-gold mb-3 font-playfair"></h2>
+                        <button id="modalAddBtn" class="btn btn-dark w-100 py-3 rounded-0 fw-bold shadow-sm">AÑADIR AL
+                            CARRITO</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="customAlert" class="custom-alert-overlay d-none">
+        <div class="custom-alert-box text-center mx-3">
+            <h5 class="text-white mb-4 font-playfair" id="alertMessage"></h5>
+            <button class="btn btn-gold-solid rounded-pill px-5" onclick="closeCustomAlert()">Aceptar</button>
+        </div>
+    </div>
+
+    <div class="offcanvas offcanvas-end" id="cartOffcanvas" tabindex="-1">
+        <div class="offcanvas-header bg-gold text-white">
+            <h5 class="font-playfair m-0 fw-bold">Tu carrito</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body d-flex flex-column bg-light-cream">
+            <div id="cartItemsContainer" class="flex-grow-1 overflow-auto"></div>
+            <div class="border-top pt-3 mt-3">
+                <div class="d-flex justify-content-between h4 font-playfair fw-bold mb-3">
+                    <span>Total:</span><span id="cartTotal" class="text-gold">$0.00</span>
+                </div>
+                <button onclick="checkoutWhatsApp()" class="btn btn-dark w-100 py-3 rounded-0 fw-bold text-uppercase">
+                    <i class="fab fa-whatsapp me-2"></i> Finalizar Pedido
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="main.js"></script>
+</body>
+
+</html>
