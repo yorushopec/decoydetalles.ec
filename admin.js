@@ -1,7 +1,12 @@
-// admin.js BLINDADO
+async function hashPassword(string) {
+    const utf8 = new TextEncoder().encode(string);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', utf8);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(bytes => bytes.toString(16).padStart(2, '0')).join('');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
 
-    // 1. Verificamos que Supabase esté listo
     if (typeof supabase === 'undefined' || typeof CONFIG === 'undefined') {
         alert("Error crítico: No se cargaron las librerías. Revisa tu internet o el archivo config.js");
         return;
@@ -9,31 +14,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const supabaseClient = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
 
-    // 2. Configurar Login
     const loginBtn = document.querySelector('#login-overlay button');
     if (loginBtn) {
-        loginBtn.onclick = () => {
-            const pass = document.getElementById('adminPass').value;
-            if (pass === "admin123") {
+        loginBtn.onclick = async () => {
+            const passInput = document.getElementById('adminPass');
+            const pass = passInput.value;
+            const userHash = await hashPassword(pass);
+            const REAL_HASH = "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9";
+
+            if (userHash === REAL_HASH) {
                 document.getElementById('login-overlay').classList.add('d-none');
                 document.getElementById('admin-panel').classList.remove('d-none');
                 loadAdminProducts(supabaseClient);
             } else {
                 document.getElementById('errorMsg').classList.remove('d-none');
+                passInput.value = ''; 
             }
         };
     }
 
-    // 3. Configurar Formulario (CON PREVENCIÓN DE RECARGA)
     const uploadForm = document.getElementById('uploadForm');
     if (uploadForm) {
         uploadForm.addEventListener('submit', async (e) => {
-            e.preventDefault(); // <--- ESTO EVITA QUE LA PÁGINA SE RECARGUE
+            e.preventDefault(); 
 
             const btn = document.getElementById('submitBtn');
             const originalText = btn.innerText;
             btn.disabled = true;
-            btn.innerText = "⏳ SUBIENDO...";
+            btn.innerText = "SUBIENDO PRODUCTO...";
 
             try {
                 const title = document.getElementById('pTitle').value;
@@ -49,7 +57,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Subimos las fotos
                 for (let i = 0; i < files.length; i++) {
                     const file = files[i];
-                    // Nombre limpio para evitar errores de caracteres raros
                     const cleanName = file.name.replace(/[^a-zA-Z0-9.]/g, '_');
                     const fileName = `${Date.now()}_${i}_${cleanName}`;
 
@@ -77,13 +84,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (dbError) throw dbError;
 
-                alert("✅ ¡Producto guardado!");
+                alert("¡Producto guardado!");
                 uploadForm.reset();
                 loadAdminProducts(supabaseClient);
 
             } catch (error) {
                 console.error(error);
-                alert("❌ Error: " + error.message);
+                alert("Error: " + error.message);
             } finally {
                 btn.disabled = false;
                 btn.innerText = originalText;
