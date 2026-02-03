@@ -110,6 +110,13 @@ function openModal(id) {
     const mainImg = document.getElementById('modalImg');
     mainImg.src = prod.image;
 
+    mainImg.style.cursor = "zoom-in"; // Pone el cursor de lupa
+    mainImg.onclick = () => {
+        const zoomModal = new bootstrap.Modal(document.getElementById('zoomModal'));
+        document.getElementById('zoomImgDisplay').src = mainImg.src; // Pasa la foto actual al zoom
+        zoomModal.show();
+    };
+
     const galleryContainer = document.getElementById('modalGallery');
     galleryContainer.innerHTML = '';
     
