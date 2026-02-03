@@ -194,7 +194,7 @@ function updateCartUI() {
 
 function checkoutWhatsApp() {
     const msg = cart.map(i => `▪ ${i.qty}x ${i.title}`).join('\n');
-    const url = `https://wa.me/593979078720?text=${encodeURIComponent("Hola, quisiera finalizar este pedido:\n\n" + msg + "\n\nTotal: " + document.getElementById('cartTotal').innerText)}`;
+    const url = `https://wa.me/593982594953?text=${encodeURIComponent("Hola, quisiera finalizar este pedido:\n\n" + msg + "\n\nTotal: " + document.getElementById('cartTotal').innerText)}`;
     window.open(url, '_blank');
 }
 
