@@ -193,7 +193,12 @@ function updateCartUI() {
 }
 
 function checkoutWhatsApp() {
-    const msg = cart.map(i => `▪ ${i.qty}x ${i.title}`).join('\n');
+    if (cart.length === 0){
+        document.getElementById('alertMessage').innerText = "Tu carrito está vacío, agrega productos primero.";
+        document.getElementById('customAlert').classList.remove('d-none');
+        return;
+    }
+    const msg = cart.map(i => `${i.qty}x ${i.title}`).join('\n');
     const url = `https://wa.me/593982594953?text=${encodeURIComponent("Hola, quisiera finalizar este pedido:\n\n" + msg + "\n\nTotal: " + document.getElementById('cartTotal').innerText)}`;
     window.open(url, '_blank');
 }

@@ -8,6 +8,9 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:ital,wght@0,700;1,400&display=swap"
         rel="stylesheet">
+    <link 
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Vollkorn:ital,wght@0,400;0,700;1,400&display=swap" 
+        rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
@@ -57,7 +60,9 @@
         <header class="hero-section text-center py-5">
             <div class="container py-4">
                 <h2 class="display-4 font-playfair mb-3">Novedades Exclusivas</h2>
-                <p class="text-muted lead mb-5 fst-italic">Con 5 años de trayectoria, en Decoydetalles nos especializamos en la fabricación de complementos decorativos de alta costura: cojines, caminos de mesa, mantelería completa, servilletas de tela y servilleteros exclusivos.</p>
+                <p class="text-muted lead mb-5 fst-italic">Con 5 años de trayectoria, en Decoydetalles nos
+                    especializamos en la fabricación de complementos decorativos de alta costura: cojines, caminos de
+                    mesa, mantelería completa, servilletas de tela y servilleteros exclusivos.</p>
                 <div class="row g-4 justify-content-center" id="randomFeatured"></div>
                 <div class="mt-5">
                     <button onclick="showView('catalog')" class="btn btn-dark btn-lg px-5 rounded-0 font-playfair">
@@ -72,6 +77,7 @@
         <div class="container py-5">
             <div class="text-center mb-5">
                 <h2 class="display-5 font-playfair fw-bold mb-3">Catálogo Completo</h2>
+
                 <div class="row justify-content-center mt-4">
                     <div class="col-lg-6 col-md-8">
                         <div class="input-group shadow-sm mb-4">
@@ -80,6 +86,11 @@
                             <input type="text" id="searchInput" class="form-control border-start-0 py-3"
                                 placeholder="Buscar...">
                         </div>
+                    </div>
+                </div>
+
+                <div class="row justify-content-center">
+                    <div class="col-12">
                         <div class="d-flex justify-content-center gap-2 flex-wrap" id="filterContainer">
                             <button class="btn btn-dark rounded-pill px-4 active-filter"
                                 onclick="filterCatalog('all', this)">Todo</button>
@@ -87,9 +98,16 @@
                                 onclick="filterCatalog('servilletas', this)">Servilletas</button>
                             <button class="btn btn-outline-dark rounded-pill px-4"
                                 onclick="filterCatalog('manteleria', this)">Mantelería</button>
+                            <button class="btn btn-outline-dark rounded-pill px-4"
+                                onclick="filterCatalog('cojines', this)">Cojines</button>
+                            <button class="btn btn-outline-dark rounded-pill px-4"
+                                onclick="filterCatalog('aros_servilletas', this)">Aros de servilletas</button>
+                            <button class="btn btn-outline-dark rounded-pill px-4"
+                                onclick="filterCatalog('caminos_mesa', this)">Caminos de mesa</button>
                         </div>
                     </div>
                 </div>
+
             </div>
             <div class="row g-4" id="catalogGrid"></div>
         </div>
